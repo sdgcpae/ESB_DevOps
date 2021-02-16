@@ -68,7 +68,8 @@ spec:
 				}
 			}
 		}
-		/* stage('Code Quality') {
+		stage('Code Quality') {
+			when { expression {propfile['code_quality'] == "true" }}
 			steps {
 				container('gradle') {
 					withMaven(maven: 'MAVEN-3.6.3') {
@@ -86,7 +87,7 @@ spec:
 					}
 				}
 			}
-		} */
+		} 
 		stage("Publish Package") {
 			when { expression {env.GIT_BRANCH == 'dev' || env.GIT_BRANCH == 'release'|| propfile['feature_deploy'] == "true" }}
 			steps {
