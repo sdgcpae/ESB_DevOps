@@ -52,7 +52,7 @@ spec:
 							echo "Remove the line below when we switch to the actual repo"
 							sh 'mvn -f sample-java-app/pom.xml clean package'
 							propfile = readProperties(file: './project.properties')	
-							if (propfile['javadoc'] == "true") {
+							/* if (propfile['javadoc'] == "true") {
 								sh 'mvn javadoc:aggregate'
 							}
 							if (propfile['jacoco'] == "true") {
@@ -62,13 +62,13 @@ spec:
 									sourcePattern: '**/*.java',
 									exclusionPattern: '**/test*'
 								)
-							}
+							} */
 						}	
 					}
 				}
 			}
 		}
-		/* stage('Code Quality') {
+		 stage('Code Quality') {
 			steps {
 				container('gradle') {
 					withMaven(maven: 'MAVEN-3.6.3') {
@@ -79,14 +79,14 @@ spec:
 						echo ' Remove the line below after we switch to ESB repo'
 						sh 'mvn -f sample-java-app/pom.xml -Dsonar.projectName=ESB_${BRANCH_NAME} -Dsonar.projectKey=ESB_sample  sonar:sonar'
 					       }
-						 sleep(60)
+						/* sleep(60)
 						timeout(time: 1, unit: 'MINUTES') {
 						waitForQualityGate abortPipeline: true
-						} 
+						} */
 					}
 				}
 			}
-		} */
+		} 
 		stage("Publish Package") {
 			when { expression {env.GIT_BRANCH == 'origin/dev' || env.GIT_BRANCH == 'origin/release'|| propfile['feature_deploy'] == "true" }}
 			steps {
@@ -219,15 +219,15 @@ spec:
      
   }
 		
-	post {
+	/* post {
   		always {
 			script {
 				if (propfile['javadoc'] == "true") {
 					javadoc(javadocDir: "/$WORKSPACE/target/site/apidocs", keepAll: true)
 				}
 		  	}
-	  	}
-    		failure {
+	  	} */
+    		// failure {
 			/*mail bcc: '', 
 			 body: "<b>Example</b><br>\n<br>Project: ${env.JOB_NAME} <br>Build Number: ${env.BUILD_NUMBER} <br> URL de build: ${env.BUILD_URL}", 
 			 cc: '', 
@@ -237,10 +237,10 @@ spec:
 			 replyTo: '', 
 			 subject: "ERROR CI: Project name -> ${env.JOB_NAME}", 
 			 to: "foo@foomail.com";*/
-			echo 'I am sending a notification with failure'
+			*/ echo 'I am sending a notification with failure'
     		}
 	  	success {
 		  	echo 'I am sending a notification with success'
-	  	}
+	  	} */
   	}
-}
+// }
