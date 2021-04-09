@@ -1,0 +1,44 @@
+//ci specific variables
+javadoc=false
+jacoco=false
+code_quality=false
+
+//deployment environment specific variables
+////feature branch and release specific branch deployment
+ondemand_deploy=false
+////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
+target_env=
+HOSTS_ONDEAMND_DEPLOY=
+USERNAME_ONDEAMND_DEPLOY=
+////dev environment deployement 
+////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
+target_env=dev02
+HOSTS_DEV_DEPLOY=10.6.74.90
+USERNAME_DEV_DEPLOY=muleadmin
+
+//deployment specific variables
+DEPLOYMENT_ARCHIVE_DIR=/home/muleadmin/stage/archive
+DEPLOYMENT_STAGE_DIR=/home/muleadmin/stage
+DEPLOYMENT_DIR=/opt/mule/latest/webapps
+WAR_FILES=AlertESB.war FraudESB.war TaxESB.war PaymentESB.war FulfillmentESB.war ESBAuditLog.war ESBAutomatedQueueRetry.war OrderReconESB.war
+ESB_BIN_PATH=/opt/mule/bin/esb_service
+ESB_WAR_FOLDERS=PaymentESB ESBAuditLog OrderReconESB FraudESB TaxESB FulfillmentESB AlertESB ESBAutomatedQueueRetry
+
+//post deployment testing specific variables
+ondemand_functionaltest=false
+ondemand_securitytest=false
+ondemand_performancetest=false
+////functionaltest (worksoft) specific variables
+uri=http://pwwsftapp01.irving.zalecorp.com/executionmanager/api
+DEV_host1=10.6.71.16
+uname=devopsengineering@signetjewelers.com
+RequestID=
+deployment_user=
+stage_name=
+////security test specific variables
+////performance test specific variables
+
+//email notification specific variables
+////seperate emails with a coma (,) e.g. test@gmail.com,test2@gmail.com
+mail_to=''
+cc_to=''
