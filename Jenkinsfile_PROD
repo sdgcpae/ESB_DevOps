@@ -71,7 +71,7 @@ spec:
 			}
 		}
 		stage("Publish Package") {
-			when { expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_deploy'] == "true" }}
+			when { expression {env.GIT_BRANCH == 'dev'}}
 			steps {
 				container('gradle') {
 					script {
@@ -100,16 +100,12 @@ spec:
 			}
 		}
 		stage("Deploy") {
-			when { expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_deploy'] == "true" }}
+			when { expression {env.GIT_BRANCH == 'dev'}}
 			steps {
 				container('gradle') {
 					script {
 						withMaven(maven: 'MAVEN-3.6.3') {
 							FAILED_STAGE=env.STAGE_NAME
-							if (propfile['ondemand_deploy'] == "true" ) {
-								USERNAME=propfile['USERNAME_ONDEAMND_DEPLOY']
-								HOSTS=propfile['HOSTS_ONDEAMND_DEPLOY']
-							}
 							if (env.GIT_BRANCH == 'dev' ) {
 								USERNAME=propfile['USERNAME_DEV_DEPLOY']
 								HOSTS=propfile['HOSTS_DEV_DEPLOY']
@@ -147,10 +143,10 @@ spec:
 			}
 		}
 		stage('Post Deploy Tests') {
-			when { expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_deploy'] == "true" }}
+			when { expression {env.GIT_BRANCH == 'dev'}}
 			parallel {
 				stage('Functional Test') {
-					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_functionaltest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev'}}
 					steps {
 						script {
 							FAILED_STAGE=env.STAGE_NAME
@@ -159,7 +155,7 @@ spec:
 					}
 				}
 				stage('Security Test') {
-					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_securitytest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev'}}
 					steps {
 						container('gradle') {
 							script {
@@ -172,7 +168,7 @@ spec:
 					}
 				}
 				stage('Performance Test') {
-					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_perfomancetest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev'}}
 					steps {
 						container('gradle') {
 							script {
