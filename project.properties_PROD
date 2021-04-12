@@ -1,7 +1,7 @@
 //ci specific variables
 javadoc=false
 jacoco=false
-code_quality=false
+code_quality=true
 
 //deployment environment specific variables
 ////feature branch and release specific branch deployment
