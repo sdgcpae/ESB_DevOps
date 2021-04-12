@@ -4,12 +4,6 @@ jacoco=false
 code_quality=true
 
 //deployment environment specific variables
-////feature branch and release specific branch deployment
-ondemand_deploy=false
-////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
-target_env=
-HOSTS_ONDEAMND_DEPLOY=
-USERNAME_ONDEAMND_DEPLOY=
 ////dev environment deployement 
 ////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
 target_env=dev02
