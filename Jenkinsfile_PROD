@@ -147,10 +147,10 @@ spec:
 			}
 		}
 		stage('Post Deploy Tests') {
-			when { expression {propfile['ondemand_deploy'] == "true" }}
+			when { expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_deploy'] == "true" }}
 			parallel {
 				stage('Functional Test') {
-					when {expression {propfile['ondemand_functionaltest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_functionaltest'] == "true" }}
 					steps {
 						script {
 							FAILED_STAGE=env.STAGE_NAME
@@ -159,7 +159,7 @@ spec:
 					}
 				}
 				stage('Security Test') {
-					when {expression {propfile['ondemand_securitytest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_securitytest'] == "true" }}
 					steps {
 						container('gradle') {
 							script {
@@ -172,7 +172,7 @@ spec:
 					}
 				}
 				stage('Performance Test') {
-					when {expression {propfile['ondemand_perfomancetest'] == "true" }}
+					when {expression {env.GIT_BRANCH == 'dev' || propfile['ondemand_perfomancetest'] == "true" }}
 					steps {
 						container('gradle') {
 							script {
