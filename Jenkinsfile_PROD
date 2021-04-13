@@ -110,6 +110,11 @@ spec:
 								USERNAME=propfile['USERNAME_DEV_DEPLOY']
 								HOSTS=propfile['HOSTS_DEV_DEPLOY']
 							}
+							echo "Pulling artifact from the repository to deploy"
+							sh "mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
+								-DrepoUrl=https://archiva.sgnt.devops.accentureanalytics.com/repository/snapshots \
+								-Dartifact=io.buildpacks.example:sample:${propfile['artifact_name']}:jar -Ddest=$WORKSPACE/artifacts/myfile.jar"
+							sh "ls -la $WORKSPACE/artifacts"
 							HOSTS.tokenize(',').each { HOSTNAME ->
 								echo "Archive Artifacts"
 								ssh ${USERNAME}@${HOSTNAME} "mkdir -p ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
