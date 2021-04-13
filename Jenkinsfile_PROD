@@ -71,7 +71,7 @@ spec:
 			}
 		}
 		stage("Publish Package") {
-			when { expression {env.GIT_BRANCH == 'dev'}}
+			when { expression {env.GIT_BRANCH == 'dev' || propfile['publish_pkg'] == "true"}}
 			steps {
 				container('gradle') {
 					script {
