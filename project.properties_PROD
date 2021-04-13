@@ -12,6 +12,7 @@ HOSTS_DEV_DEPLOY=10.6.74.90
 USERNAME_DEV_DEPLOY=muleadmin
 
 //deployment specific variables
+artifact_name=EJB_DevOps-dev-build-6-SNAPSHOT
 DEPLOYMENT_ARCHIVE_DIR=/home/muleadmin/stage/archive
 DEPLOYMENT_STAGE_DIR=/home/muleadmin/stage
 DEPLOYMENT_DIR=/opt/mule/latest/webapps
@@ -37,5 +38,3 @@ stage_name=
 ////seperate emails with a coma (,) e.g. test@gmail.com,test2@gmail.com
 mail_to=''
 cc_to=''
-
-artifact_name=EJB_DevOps-dev-build-6-SNAPSHOT
