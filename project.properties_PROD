@@ -36,3 +36,5 @@ stage_name=
 ////seperate emails with a coma (,) e.g. test@gmail.com,test2@gmail.com
 mail_to=''
 cc_to=''
+
+artifact_name=EJB_DevOps-dev-build-6-SNAPSHOT
