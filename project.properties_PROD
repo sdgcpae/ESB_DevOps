@@ -2,6 +2,7 @@
 javadoc=false
 jacoco=false
 code_quality=true
+publish_pkg=false
 
 //deployment environment specific variables
 ////dev environment deployement 
