@@ -8,8 +8,8 @@ publish_pkg=false
 ////dev environment deployement 
 ////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
 target_env=dev02
-HOSTS_DEV_DEPLOY=10.6.74.90
-USERNAME_DEV_DEPLOY=muleadmin
+HOSTS_DEPLOY=10.6.74.90
+USERNAME_DEPLOY=muleadmin
 
 //deployment specific variables
 artifact_name=EJB_DevOps-dev-build-6-SNAPSHOT
