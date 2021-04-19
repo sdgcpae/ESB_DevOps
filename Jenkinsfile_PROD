@@ -74,10 +74,10 @@ spec:
 							// ESB has 11 gradle clean builds
 							// sh 'gradle clean build'
 							propfile = readProperties(file: './project.properties')	
-							if (propfile['javadoc'] == "true") {
+							if (javadoc == "true") {
 								sh 'mvn javadoc:aggregate'
 							}
-							if (propfile['jacoco'] == "true") {
+							if (jacoco == "true") {
 								jacoco( 
 									execPattern: '**/*.exec',
 									classPattern: '**/*.class',
