@@ -141,7 +141,7 @@ spec:
 								sh '''
 								    ssh -i ${token} -o StrictHostKeyChecking=no ${USERNAME}@${HOSTNAME} "mkdir -p ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
 								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cd ${propfile['DEPLOYMENT_DIR']} && tar cvf artifact_backup.tar ${propfile['WAR_FILES']}"
-								    ssh -i ${token} -o${USERNAME}@${HOSTNAME} "cp -rp ${propfile['DEPLOYMENT_DIR']}/artifact_backup.tar ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cp -rp ${propfile['DEPLOYMENT_DIR']}/artifact_backup.tar ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
 
 								    mkdir -p $WORKSPACE/artifacts
 								    cp -r /c/Windows/System32/config/systemprofile/AppData/Local/Jenkins/.jenkins/workspace/DevOps_ESB/DevOps_ESB_Build/artifacts/artifact.tar $WORKSPACE/artifacts/
