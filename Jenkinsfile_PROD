@@ -23,6 +23,10 @@ spec:
 """
         }
     }
+    environment {
+		//SSH TOKENS
+		token = credentials('id_rsa_jenkins')
+	}
 	stages {
 		stage('Build & Unit Test') {
 			steps {
