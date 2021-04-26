@@ -23,45 +23,6 @@ spec:
 """
         }
     }
-    	environment {
-		//ci specific variables
-		javadoc = 'false'
-		jacoco = 'false'
-		code_quality = 'false'
-
-		//post deployment testing specific variables
-		ondemand_functionaltest = 'false'
-		ondemand_securitytest = 'false'
-		ondemand_performancetest = 'false'
-		
-		//deployment environment specific variables
-		////dev environment deployement 
-		////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
-		target_env = 'dev02'
-		HOSTS_DEPLOY = '10.6.74.90'
-		USERNAME_DEPLOY = 'muleadmin'
-
-		//deployment specific variables
-		DEPLOYMENT_ARCHIVE_DIR = '/home/muleadmin/stage/archive'
-		DEPLOYMENT_STAGE_DIR = '/home/muleadmin/stage'
-		DEPLOYMENT_DIR = '/opt/mule/latest/webapps'
-		WAR_FILES = 'AlertESB.war FraudESB.war TaxESB.war PaymentESB.war FulfillmentESB.war ESBAuditLog.war ESBAutomatedQueueRetry.war OrderReconESB.war'
-		ESB_BIN_PATH = '/opt/mule/bin/esb_service'
-		ESB_WAR_FOLDERS = 'PaymentESB ESBAuditLog OrderReconESB FraudESB TaxESB FulfillmentESB AlertESB ESBAutomatedQueueRetry'
-	
-		////functionaltest (worksoft) specific variables
-		uri = 'http://pwwsftapp01.irving.zalecorp.com/executionmanager/api'
-		DEV_host1 = '10.6.71.16'
-		uname = 'devopsengineering@signetjewelers.com'
-		RequestID = ''
-		deployment_user = ''
-		stage_name = ''
-		////security test specific variables
-		////performance test specific variables
-		
-		//SSH TOKENS
-		token = credentials('id_rsa_jenkins')
-	}
 	stages {
 		stage('Build & Unit Test') {
 			steps {
@@ -74,10 +35,10 @@ spec:
 							// ESB has 11 gradle clean builds
 							// sh 'gradle clean build'
 							propfile = readProperties(file: './project.properties')	
-							if (javadoc == "true") {
+							if (propfile['javadoc'] == "true") {
 								sh 'mvn javadoc:aggregate'
 							}
-							if (jacoco == "true") {
+							if (propfile['jacoco'] == "true") {
 								jacoco( 
 									execPattern: '**/*.exec',
 									classPattern: '**/*.class',
@@ -91,7 +52,7 @@ spec:
 			}
 		}
 		stage('Code Quality') {
-			when { expression {code_quality == "true" }}
+			when { expression {propfile['code_quality'] == "true" }}
 			steps {
 				container('gradle') {
 					script {
@@ -112,74 +73,93 @@ spec:
 			}
 		}
 		stage("Publish Package") {
-			when { expression {env.GIT_BRANCH == 'dev' || propfile['publish_pkg'] == "true"}}
+			when { expression {env.GIT_BRANCH == 'dev' || propfile['publish_pkg'] == "true" }}
 			steps {
 				container('gradle') {
 					script {
 						withMaven(maven: 'MAVEN-3.6.3') {
 							FAILED_STAGE=env.STAGE_NAME
-							rm -rf $WORKSPACE/artifacts
-							mkdir -p $WORKSPACE/artifacts
-							for i in ESBAuditClient ESBAuditLog ESBErrorTranslator TaxESB FraudESB FulfillmentESB PaymentESB ESBRadial ESBAutomatedQueueRetry AlertESB OrderReconESB;do cp -rp ${i}/dist/libs/* $WORKSPACE/artifacts/ ;done
-							cd $WORKSPACE/artifacts
-							mv AlertESB-1.0-SNAPSHOT.war AlertESB.war
-							mv ESBAuditClient-1.0-SNAPSHOT.jar ESBAuditClient.jar
-							mv ESBAuditLog-1.0-SNAPSHOT.war ESBAuditLog.war
-							mv ESBAutomatedQueueRetry-1.0-SNAPSHOT.war ESBAutomatedQueueRetry.war
-							mv ESBErrorTranslator-1.0-SNAPSHOT.jar ESBErrorTranslator.jar
-							mv ESBRadial-1.0-SNAPSHOT.jar ESBRadial.jar
-							mv FraudESB-1.0-SNAPSHOT.war FraudESB.war
-							mv FulfillmentESB-1.0-SNAPSHOT.war FulfillmentESB.war
-							mv OrderReconESB-1.0-SNAPSHOT.war OrderReconESB.war
-							mv PaymentESB-1.0-SNAPSHOT.war PaymentESB.war
-							mv TaxESB-1.0-SNAPSHOT.war TaxESB.war
-							cd $WORKSPACE/artifacts/ && tar -cvzf artifact.tar *
-							ls -lrt
+							sh '''
+								rm -rf $WORKSPACE/artifacts
+								mkdir -p $WORKSPACE/artifacts
+								for i in ESBAuditClient ESBAuditLog ESBErrorTranslator TaxESB FraudESB FulfillmentESB PaymentESB ESBRadial ESBAutomatedQueueRetry AlertESB OrderReconESB;do cp -rp ${i}/dist/libs/* $WORKSPACE/artifacts/ ;done
+								cd $WORKSPACE/artifacts
+								mv AlertESB-1.0-SNAPSHOT.war AlertESB.war
+								mv ESBAuditClient-1.0-SNAPSHOT.jar ESBAuditClient.jar
+								mv ESBAuditLog-1.0-SNAPSHOT.war ESBAuditLog.war
+								mv ESBAutomatedQueueRetry-1.0-SNAPSHOT.war ESBAutomatedQueueRetry.war
+								mv ESBErrorTranslator-1.0-SNAPSHOT.jar ESBErrorTranslator.jar
+								mv ESBRadial-1.0-SNAPSHOT.jar ESBRadial.jar
+								mv FraudESB-1.0-SNAPSHOT.war FraudESB.war
+								mv FulfillmentESB-1.0-SNAPSHOT.war FulfillmentESB.war
+								mv OrderReconESB-1.0-SNAPSHOT.war OrderReconESB.war
+								mv PaymentESB-1.0-SNAPSHOT.war PaymentESB.war
+								mv TaxESB-1.0-SNAPSHOT.war TaxESB.war
+								cd $WORKSPACE/artifacts/ && tar -cvzf artifact.tar *
+								ls -lrt
+							'''
+							sh "mvn -X deploy:deploy-file \
+								-Dfile=$WORKSPACE/artifacts/artifact.tar \
+								-DrepositoryId=snapshots \
+								-Durl=https://archiva.sgnt.devops.accentureanalytics.com/repository/snapshots/ \
+								-DgroupId=io.buildpacks.example \
+								-DartifactId=sample \
+								-Dversion=ESB-${env.GIT_BRANCH}-build-${env.BUILD_NUMBER}"
 						}
 					}
 				}
 			}
 		}
 		stage("Deploy") {
-			when { expression {env.GIT_BRANCH == 'dev'}}
+			when { expression {env.GIT_BRANCH == 'dev' ||  (propfile['auto_deploy'] == "true" && env.GIT_BRANCH ==~ /release\//) ||  (propfile['auto_deploy'] == "true" && env.GIT_BRANCH ==~ /project\//) }}
 			steps {
 				container('gradle') {
 					script {
 						withMaven(maven: 'MAVEN-3.6.3') {
 							FAILED_STAGE=env.STAGE_NAME
-							if (env.GIT_BRANCH == 'dev' ) {
-								USERNAME=USERNAME_DEPLOY
-								HOSTS=HOSTS_DEPLOY
+							if (env.GIT_BRANCH == 'dev') {
+								USERNAME=propfile['USERNAME_DEPLOY']
+								HOSTS=propfile['HOSTS_DEPLOY']
+								TARGETENV=propfile['target_env']
+							} else if(propfile['auto_deploy'] == "true") {
+								USERNAME=propfile['USERNAME_AUTO_DEPLOY']
+								HOSTS=propfile['HOSTS_AUTO_DEPLOY']
+								TARGETENV=propfile['target_auto_env']
 							}
+							echo "Pulling artifact from the repository to deploy"
+							sh "mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
+								-DrepoUrl=https://archiva.sgnt.devops.accentureanalytics.com/repository/snapshots \
+								-Dartifact=io.buildpacks.example:sample:ESB-${env.GIT_BRANCH}-build-${env.BUILD_NUMBER}:tar -Ddest=$WORKSPACE/artifacts/artifact.tar"
+							sh "tar zxvf $WORKSPACE/artifacts/artifact.tar -C $WORKSPACE"
+							sh "ls -la $WORKSPACE/artifacts"
 							HOSTS.tokenize(',').each { HOSTNAME ->
 								echo "Archive Artifacts"
-								
 								sh '''
-									ssh -i ${token} -o StrictHostKeyChecking=no ${USERNAME}@${HOSTNAME} "mkdir -p ${DEPLOYMENT_ARCHIVE_DIR}"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "cd ${DEPLOYMENT_DIR} && tar cvf artifact_backup.tar ${WAR_FILES}"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "cp -rp ${DEPLOYMENT_DIR}/artifact_backup.tar ${DEPLOYMENT_ARCHIVE_DIR}"
-									mkdir -p $WORKSPACE/artifacts
-									//change next line 
-									cp -r /c/Windows/System32/config/systemprofile/AppData/Local/Jenkins/.jenkins/workspace/DevOps_ESB/DevOps_ESB_Build/artifacts/artifact.tar $WORKSPACE/artifacts/
+								    ssh -i ${token} -o StrictHostKeyChecking=no ${USERNAME}@${HOSTNAME} "mkdir -p ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cd ${propfile['DEPLOYMENT_DIR']} && tar cvf artifact_backup.tar ${propfile['WAR_FILES']}"
+								    ssh -i ${token} -o${USERNAME}@${HOSTNAME} "cp -rp ${propfile['DEPLOYMENT_DIR']}/artifact_backup.tar ${propfile['DEPLOYMENT_ARCHIVE_DIR']}"
 
-									echo "Stop esb server"
-									echo "shutting down the tomcat ESB server"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "${ESB_BIN_PATH} stop || sleep 20"
-									echo "force stop any remaining mule process"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "if [[ $(ps aux | grep /opt/mule/latest/ | grep -vc grep) > 0 ]]; then "kill -9 $(ps -ef|pgrep -f "/opt/mule/latest/bin")"; else echo "do nothing"; fi"
-									echo "tomcat server stopped"
+								    mkdir -p $WORKSPACE/artifacts
+								    cp -r /c/Windows/System32/config/systemprofile/AppData/Local/Jenkins/.jenkins/workspace/DevOps_ESB/DevOps_ESB_Build/artifacts/artifact.tar $WORKSPACE/artifacts/
 
-									echo "deploy esb"
-									scp -i ${token} -rp $WORKSPACE/artifacts/artifact.tar ${USERNAME}@${HOSTNAME}:$DEPLOYMENT_STAGE_DIR/
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "cd ${DEPLOYMENT_STAGE_DIR} && rm -rf *.war *.jar"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "cd ${DEPLOYMENT_STAGE_DIR} && tar -xvzf artifact.tar && rm -rf *.jar"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "cd ${DEPLOYMENT_DIR} && rm -rf ${ESB_WAR_FOLDERS} && cp -rp ${DEPLOYMENT_STAGE_DIR}/*.war ${DEPLOYMENT_DIR}"
-									echo "Deployment has been completed"
+								    echo "Stop esb server"
+								    echo "shutting down the tomcat ESB server"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "${propfile['ESB_BIN_PATH']} stop || sleep 20"
+								    echo "force stop any remaining mule process"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "if [[ $(ps aux | grep /opt/mule/latest/ | grep -vc grep) > 0 ]]; then "kill -9 $(ps -ef|pgrep -f "/opt/mule/latest/bin")"; else echo "do nothing"; fi"
+								    echo "tomcat server stopped"
 
-									echo "starting the tomcat ESB server"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "${ESB_BIN_PATH} start"
-									ssh -i ${token} ${USERNAME}@${HOSTNAME} "sleep 20"
-									echo "tomcat server started"
+								    echo "deploy esb"
+								    scp -i ${token} -o -rp $WORKSPACE/artifacts/artifact.tar ${USERNAME}@${HOSTNAME}:propfile['DEPLOYMENT_STAGE_DIR']/
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cd ${propfile['DEPLOYMENT_STAGE_DIR']} && rm -rf *.war *.jar"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cd ${propfile['DEPLOYMENT_STAGE_DIR']} && tar -xvzf artifact.tar && rm -rf *.jar"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "cd ${propfile['DEPLOYMENT_DIR']} && rm -rf ${propfile['ESB_WAR_FOLDERS']} && cp -rp ${propfile['DEPLOYMENT_STAGE_DIR']}/*.war ${propfile['DEPLOYMENT_DIR']}"
+								    echo "Deployment has been completed"
+
+								    echo "starting the tomcat ESB server"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "${propfile['ESB_BIN_PATH']} start"
+								    ssh -i ${token} -o ${USERNAME}@${HOSTNAME} "sleep 20"
+								    echo "tomcat server started"
 								'''
 							}
 						}	
@@ -188,10 +168,10 @@ spec:
 			}
 		}
 		stage('Post Deploy Tests') {
-			when { expression {env.GIT_BRANCH == 'dev'}}
+			when { expression {env.GIT_BRANCH == 'dev' ||  (propfile['auto_post_deploy_tests'] == "true" && env.GIT_BRANCH ==~ /release\//) ||  (propfile['auto_post_deploy_tests'] == "true" && env.GIT_BRANCH ==~ /project\//) }}
 			parallel {
 				stage('Functional Test') {
-					when {expression {ondemand_functionaltest == "true" }}
+					when {expression {propfile['ondemand_functionaltest'] == "true" }}
 					steps {
 						script {
 							FAILED_STAGE=env.STAGE_NAME
@@ -200,7 +180,7 @@ spec:
 					}
 				}
 				stage('Security Test') {
-					when {expression {ondemand_securitytest == "true" }}
+					when {expression {propfile['ondemand_securitytest'] == "true" }}
 					steps {
 						container('gradle') {
 							script {
@@ -213,7 +193,7 @@ spec:
 					}
 				}
 				stage('Performance Test') {
-					when {expression {ondemand_perfomancetest == "true" }}
+					when {expression {propfile['ondemand_perfomancetest'] == "true" }}
 					steps {
 						container('gradle') {
 							script {
@@ -231,7 +211,7 @@ spec:
 	post {
 		always {
 			script {
-				if (javadoc == "true") {
+				if (propfile['javadoc'] == "true") {
 					javadoc(javadocDir: "/$WORKSPACE/target/site/apidocs", keepAll: true)
 				}
 			}
