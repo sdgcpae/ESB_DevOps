@@ -37,7 +37,7 @@ spec:
 							echo 'I am executing build and unit test'
 							echo "Use the line below when we switch to the actual repo"
 							// ESB has 11 gradle clean builds
-							// sh 'gradle clean build'
+							sh "for i in ESBAuditClient ESBAuditLog ESBErrorTranslator TaxESB FraudESB FulfillmentESB PaymentESB ESBRadial ESBAutomatedQueueRetry AlertESB OrderReconESB;do gradle --no-daemon -p ${i} clean build;done"
 							propfile = readProperties(file: './project.properties')	
 							if (propfile['javadoc'] == "true") {
 								sh 'mvn javadoc:aggregate'
