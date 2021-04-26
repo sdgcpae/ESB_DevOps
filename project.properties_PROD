@@ -1,1 +1,44 @@
 publish_pkg=false
+auto_deploy=false
+auto_post_deploy_tests=false
+
+//ci specific variables
+javadoc=false
+jacoco=false
+code_quality=false
+
+//post deployment testing specific variables
+ondemand_functionaltest=false
+ondemand_securitytest=false
+ondemand_performancetest=false
+
+//deployment environment specific variables
+////auto_deploy environment details 
+////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
+target_auto_env=
+HOSTS_AUTO_DEPLOY=
+USERNAME_AUTO_DEPLOY=
+
+////dev environment details 
+////seperate host ip addresses by comma e.g. 10.1.2.3,10.4.5.6
+target_env=dev02
+HOSTS_DEPLOY=10.6.74.90
+USERNAME_DEPLOY=muleadmin
+
+//deployment specific variables
+DEPLOYMENT_ARCHIVE_DIR=/home/muleadmin/stage/archive
+DEPLOYMENT_STAGE_DIR=/home/muleadmin/stage
+DEPLOYMENT_DIR=/opt/mule/latest/webapps
+WAR_FILES=AlertESB.war FraudESB.war TaxESB.war PaymentESB.war FulfillmentESB.war ESBAuditLog.war ESBAutomatedQueueRetry.war OrderReconESB.war
+ESB_BIN_PATH=/opt/mule/bin/esb_service
+ESB_WAR_FOLDERS=PaymentESB ESBAuditLog OrderReconESB FraudESB TaxESB FulfillmentESB AlertESB ESBAutomatedQueueRetry
+
+////functionaltest (worksoft) specific variables
+uri=http://pwwsftapp01.irving.zalecorp.com/executionmanager/api
+DEV_host1=10.6.71.16
+uname=devopsengineering@signetjewelers.com
+RequestID=
+deployment_user=
+stage_name=
+////security test specific variables
+////performance test specific variables
